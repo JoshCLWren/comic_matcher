@@ -3,10 +3,9 @@ Common test fixtures for comic_matcher tests
 """
 
 import json
-from pathlib import Path
 
-import pytest
 import pandas as pd
+import pytest
 
 
 @pytest.fixture

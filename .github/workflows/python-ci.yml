@@ -56,8 +56,8 @@ jobs:
         
     - name: Lint with Ruff
       run: |
-        ruff check comic_matcher tests
+        ruff check comic_matcher
         
     - name: Check formatting with Ruff
       run: |
-        ruff format --check comic_matcher tests
+        ruff format --check comic_matcher

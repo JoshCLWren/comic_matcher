@@ -40,11 +40,15 @@ fix:
 	ruff check --fix comic_matcher
 	ruff format comic_matcher
 
+fix-unsafe:
+	ruff check --unsafe-fixes comic_matche
+	ruff format comic_matche
+
 lint-verbose:
 	ruff check comic_matcher --verbose
 
 format:
-	ruff format comic_matcher
+	ruff format comic_matcher tests
 
 build:
 	python setup.py sdist bdist_wheel

@@ -87,3 +87,26 @@ def test_find_best_match_with_structural_differences():
             assert result["matched_comic"]["title"] == expected, \
                 f"Expected '{expected}' but got '{result['matched_comic']['title']}'"
             print(f"'{source['title']}' correctly matched with '{result['matched_comic']['title']}' ✓")
+
+
+def test_colon_strings():
+    """
+    Ensure: X-Men: Liberators 3
+    does not match: Uncanny X-Men 3
+    """
+    matcher = ComicMatcher()
+    source = {"title": "X-Men: Liberators", "issue": "3"}
+    candidates = [{"title": "Uncanny X-Men", "issue": "3"}]
+    result = matcher.find_best_match(source, candidates)
+    assert not result
+
+def test_colon_strings():
+    """
+    Ensure Astonishing X-Men Xenogenesis 1	Astonishing X-Men 1
+    does not match: Astonishing X-Men 1
+    """
+    matcher = ComicMatcher()
+    source = {"title": "Astonishing X-Men", "issue": "1"}
+    candidates = [{"title": "Astonishing X-Men Xenogenesis", "issue": "1"}]
+    result = matcher.find_best_match(source, candidates)
+    assert not result

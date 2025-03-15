@@ -29,7 +29,7 @@ setup(
     },
     description="Entity resolution for comic book title matching",
     author="Josh Wren",
-    author_email="your.email@example.com",
+    author_email="joshisplutar@gmail.com",
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Intended Audience :: Developers",

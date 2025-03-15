@@ -140,12 +140,15 @@ class ComicTitleParser:
 
     def _normalize_title(self, title: str) -> str:
         """Normalize a title by removing common prefixes"""
+        if not title:
+            return ""
+
         title_lower = title.lower()
 
-        # Remove common prefixes
+        # Remove common prefixes - this will handle 'Uncanny X-Men' -> 'X-Men'
+        # and other expected normalizations consistently
         for prefix in self.common_prefixes:
             if title_lower.startswith(prefix + " "):
-                # Return the title without the prefix
                 return title[len(prefix) + 1 :]
 
         return title

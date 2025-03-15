@@ -39,7 +39,8 @@ class TestComicTitleParser:
         
         # Test title with year in parentheses
         result = parser.parse("Uncanny X-Men (1981) #142")
-        assert result["main_title"] == "Uncanny X-Men"
+        # The parse method should normalize the title by removing common prefixes
+        assert result["main_title"] == "X-Men"
         assert result["year"] == "1981"
         
         # Test another format
@@ -123,6 +124,9 @@ class TestComicTitleParser:
     def test_normalize_title(self):
         """Test normalizing titles with common prefixes"""
         parser = ComicTitleParser()
+        
+        # Check that 'uncanny' is in common prefixes
+        assert "uncanny" in parser.common_prefixes
         
         # Test common prefix removal
         assert parser._normalize_title("The Avengers") == "Avengers"

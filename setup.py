@@ -6,7 +6,7 @@ setup(
     packages=find_packages(),
     install_requires=[
         "pandas>=1.0.0",
-        "recordlinkage>=0.14",
+        "recordlinkage>=0.15",
         "jellyfish>=0.8.0",
         "scikit-learn>=0.24.0",
         "numpy>=1.19.0",

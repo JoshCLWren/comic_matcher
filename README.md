@@ -101,10 +101,11 @@ The recommended way to set up your development environment is using the provided
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/comic_matcher.git
+git clone https://github.com/JoshCLWren/comic_matcher.git
 cd comic_matcher
 
 # Create a Python 3.12 virtual environment with pyenv
+brew install pyenv virtualenv
 make venv
 
 # Install dev dependencies

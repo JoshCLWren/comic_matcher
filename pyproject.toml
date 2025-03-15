@@ -1,0 +1,26 @@
+[tool.bandit]
+exclude_dirs = ["tests", "venv", ".venv", "env"]
+skips = ["B101", "B311"]  # Adjust as needed
+
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.ruff]
+line-length = 100
+target-version = "py38"
+select = ["E", "F", "I", "N", "W", "B", "C4", "UP", "ARG", "SIM"]
+ignore = []
+exclude = [
+    ".git",
+    ".env",
+    ".venv",
+    "venv",
+    "env",
+    "__pycache__",
+    "build",
+    "dist",
+]
+
+[tool.ruff.isort]
+known-first-party = ["comic_matcher"]

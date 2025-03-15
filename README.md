@@ -251,6 +251,23 @@ pytest tests/test_matcher.py::TestComicMatcher::test_compare_titles -v
 
 The tests use pytest fixtures defined in `tests/conftest.py` to provide sample data and common setup. This makes the tests more readable and maintainable.
 
+## CI/CD Workflows
+
+This project uses GitHub Actions for continuous integration and delivery:
+
+- **Python CI**: Runs tests and linting on multiple Python versions
+- **Security Scan**: Checks for security vulnerabilities in code and dependencies
+- **CodeQL Analysis**: Performs advanced code quality and security analysis
+- **Dependency Review**: Reviews dependencies in pull requests for vulnerabilities
+- **Dependency Update**: Automatically updates dependencies weekly
+- **Build and Publish**: Builds and publishes releases to PyPI
+
+### Status Badges
+
+![Python CI](https://github.com/yourusername/comic_matcher/actions/workflows/python-ci.yml/badge.svg)
+![Security Scan](https://github.com/yourusername/comic_matcher/actions/workflows/security-scan.yml/badge.svg)
+![CodeQL](https://github.com/yourusername/comic_matcher/actions/workflows/codeql-analysis.yml/badge.svg)
+
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
@@ -264,6 +281,8 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 7. Commit your changes (`git commit -m 'Add some amazing feature'`)
 8. Push to the branch (`git push origin feature/amazing-feature`)
 9. Open a Pull Request
+
+All pull requests are automatically tested using our CI workflows.
 
 ## License
 

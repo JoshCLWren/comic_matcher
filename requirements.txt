@@ -8,3 +8,8 @@ joblib>=0.17.0
 python-Levenshtein>=0.12.0
 rapidfuzz>=1.0.0
 ruff>=0.1.6
+
+# Testing dependencies
+pytest>=6.0.0
+pytest-cov>=2.10.0
+coverage>=5.2.0

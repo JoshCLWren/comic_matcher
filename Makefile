@@ -26,6 +26,12 @@ dev: venv
 test:
 	pytest
 
+test-cov:
+	pytest --cov=comic_matcher tests/
+
+test-verbose:
+	pytest -vv
+
 lint:
 	ruff check comic_matcher
 	ruff format --check comic_matcher

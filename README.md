@@ -127,6 +127,12 @@ make dev
 # Run tests
 make test
 
+# Run tests with coverage report
+make test-cov
+
+# Run tests with detailed output
+make test-verbose
+
 # Run linting with Ruff
 make lint
 
@@ -209,6 +215,41 @@ matcher = ComicMatcher(fuzzy_hash_path="fuzzy_hash.json")
 # Match against reading order
 matches = matcher.match(wishlist_df, reading_order_df)
 ```
+
+## Testing
+
+The project includes a comprehensive test suite using pytest. The tests cover all major components:
+
+- `test_parser.py`: Tests for the comic title parsing functionality
+- `test_matcher.py`: Tests for the core matcher functionality
+- `test_utils.py`: Tests for utility functions
+- `test_cli.py`: Tests for command-line interface
+
+To run the tests:
+
+```bash
+# Run all tests
+make test
+
+# Run with coverage report
+make test-cov
+
+# Run tests with verbose output
+make test-verbose
+
+# Run a specific test file
+pytest tests/test_parser.py -v
+
+# Run a specific test class
+pytest tests/test_matcher.py::TestComicMatcher -v
+
+# Run a specific test function
+pytest tests/test_matcher.py::TestComicMatcher::test_compare_titles -v
+```
+
+### Test Structure
+
+The tests use pytest fixtures defined in `tests/conftest.py` to provide sample data and common setup. This makes the tests more readable and maintainable.
 
 ## Contributing
 

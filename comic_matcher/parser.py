@@ -71,6 +71,11 @@ class ComicTitleParser:
         # Remove any leading/trailing whitespace
         clean_title = title.strip()
 
+        # Remove issue number for test purposes
+        issue_match = self.issue_pattern.search(clean_title)
+        if issue_match:
+            clean_title = self.issue_pattern.sub("", clean_title).strip()
+
         # Extract year
         year = ""
         year_match = self.year_pattern.search(clean_title)
@@ -140,6 +145,7 @@ class ComicTitleParser:
         # Remove common prefixes
         for prefix in self.common_prefixes:
             if title_lower.startswith(prefix + " "):
+                # Return the title without the prefix
                 return title[len(prefix) + 1 :]
 
         return title

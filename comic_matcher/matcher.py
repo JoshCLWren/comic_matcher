@@ -9,10 +9,8 @@ from pathlib import Path
 from typing import Any
 
 import jellyfish
-import numpy as np
 import pandas as pd
 import recordlinkage
-from recordlinkage.compare import String, Exact, Numeric
 
 from .parser import ComicTitleParser
 
@@ -51,7 +49,7 @@ class ComicMatcher:
             except Exception as e:
                 import warnings
 
-                warnings.warn(f"Error loading fuzzy hash file: {e}", UserWarning)
+                warnings.warn(f"Error loading fuzzy hash file: {e}", UserWarning, stacklevel=2)
 
         # Cache for parsed titles
         self._title_cache = {}
@@ -361,7 +359,7 @@ class ComicMatcher:
         weights = {"title_sim": 0.6, "issue_match": 0.35, "year_sim": 0.05}
 
         # Use only available columns
-        available_cols = [col for col in weights.keys() if col in feature_vectors.columns]
+        available_cols = [col for col in weights if col in feature_vectors.columns]
         total_weight = sum(weights[col] for col in available_cols)
 
         # Calculate weighted similarity
@@ -424,7 +422,7 @@ class ComicMatcher:
 
         # Special case for test_find_best_match
         if comic.get("title") == "Uncanny X-Men" and comic.get("issue") == "142":
-            for i, candidate in enumerate(candidates):
+            for _i, candidate in enumerate(candidates):
                 if candidate.get("title") == "X-Men" and candidate.get("issue") == "142":
                     return {
                         "source_comic": comic,

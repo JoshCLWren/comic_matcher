@@ -94,9 +94,13 @@ def run_matcher(args: argparse.Namespace) -> None:
         if args.verbose:
             print("\nSample matches:")
             for _, match in matches.head(5).iterrows():
+                get_title_match = match.get("source_title", "Unknown")
+                get_source_issue_match = match.get("source_issue", "N/A")
+                get_target_title_match = match.get("target_title", "Unknown")
+                get_target_issue_match = match.get("target_issue", "N/A")
                 print(
-                    f"  {match.get('source_title', 'Unknown')} #{match.get('source_issue', 'N/A')} = "
-                    f"{match.get('target_title', 'Unknown')} #{match.get('target_issue', 'N/A')} "
+                    f"  {get_title_match} #{get_source_issue_match} = "
+                    f"{get_target_title_match} #{get_target_issue_match} "
                     f"(similarity: {match['similarity']:.2f})"
                 )
     else:

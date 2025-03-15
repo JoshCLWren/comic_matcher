@@ -127,10 +127,10 @@ make dev
 # Run tests
 make test
 
-# Run linting
+# Run linting with Ruff
 make lint
 
-# Format code
+# Format code with Ruff
 make format
 
 # Clean up temporary files
@@ -144,6 +144,20 @@ make coverage
 ```
 
 This workflow ensures a clean, isolated development environment and consistent code quality.
+
+### Linting with Ruff
+
+This project uses [Ruff](https://docs.astral.sh/ruff/) for linting and formatting. Ruff is a fast, modern Python linter and formatter written in Rust. It replaces multiple tools (flake8, black, isort, etc.) with a single, unified tool.
+
+To lint your code:
+```bash
+make lint
+```
+
+To automatically format your code:
+```bash
+make format
+```
 
 ### Running Examples
 

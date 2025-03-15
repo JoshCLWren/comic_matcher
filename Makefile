@@ -1,4 +1,4 @@
-.PHONY: clean dev test lint format build coverage venv
+.PHONY: clean dev test lint lint-verbose fix format build coverage venv
 
 venv:
 	pyenv install 3.12 --skip-existing
@@ -27,13 +27,18 @@ test:
 	pytest
 
 lint:
-	flake8 comic_matcher
-	isort --check-only --profile black comic_matcher
-	black --check comic_matcher
+	ruff check comic_matcher
+	ruff format --check comic_matcher
+
+fix:
+	ruff check --fix comic_matcher
+	ruff format comic_matcher
+
+lint-verbose:
+	ruff check comic_matcher --verbose
 
 format:
-	isort --profile black comic_matcher
-	black comic_matcher
+	ruff format comic_matcher
 
 build:
 	python setup.py sdist bdist_wheel

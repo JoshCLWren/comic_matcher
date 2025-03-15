@@ -18,9 +18,7 @@ setup(
         "dev": [
             "pytest>=6.0.0",
             "pytest-cov>=2.10.0",
-            "black>=20.8b1",
-            "isort>=5.6.0",
-            "flake8>=3.8.0",
+            "ruff>=0.1.6",
             "wheel>=0.35.0",
         ],
     },

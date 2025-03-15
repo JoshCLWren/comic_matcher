@@ -1,0 +1,39 @@
+# ruff.toml
+
+# Exclude some directories and files
+exclude = [
+    ".git",
+    ".ruff_cache",
+    "__pycache__",
+    ".pytest_cache",
+    "build",
+    "dist",
+]
+
+# Assume Python 3.12
+target-version = "py312"
+
+# Line length
+line-length = 100
+
+[lint]
+# Enable all recommended rules
+select = ["E", "F", "B", "I", "W", "N", "UP", "ANN", "A", "C4", "INP", "PIE", "PT", "RET", "SIM", "PTH", "RUF", "ERA"]
+
+# Allow autofix for all enabled rules
+fixable = ["ALL"]
+unfixable = []
+
+# Allow unused variables when they start with an underscore
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[lint.per-file-ignores]
+# Don't require docstrings in tests
+"tests/**/*.py" = ["D"]
+# Don't require docstrings in examples
+"examples/**/*.py" = ["D"]
+
+[format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "auto"

@@ -41,8 +41,8 @@ fix:
 	ruff format comic_matcher
 
 fix-unsafe:
-	ruff check --unsafe-fixes comic_matche
-	ruff format comic_matche
+	ruff check --unsafe-fixes comic_matcher
+	ruff format comic_matcher
 
 lint-verbose:
 	ruff check comic_matcher --verbose

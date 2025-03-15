@@ -4,6 +4,7 @@ Parser module for comic book titles
 
 import re
 
+
 class ComicTitleParser:
     """Parser for extracting structured information from comic book titles"""
 

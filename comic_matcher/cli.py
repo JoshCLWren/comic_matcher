@@ -9,7 +9,6 @@ from typing import Any
 
 import pandas as pd
 
-import constants
 from .matcher import ComicMatcher
 from .parser import ComicTitleParser
 from .utils import export_matches_to_csv, load_comics_from_csv, load_comics_from_json
@@ -135,7 +134,7 @@ def main() -> None:
     match_parser.add_argument("target", help="Target comics file (CSV or JSON)")
     match_parser.add_argument("-o", "--output", help="Output CSV file for matches")
     match_parser.add_argument(
-        "-t", "--threshold", type=float, default=constants.THRESHOLD, help="Similarity threshold (0-1)"
+        "-t", "--threshold", type=float, default=0.63, help="Similarity threshold (0-1)"
     )
     match_parser.add_argument(
         "-i",

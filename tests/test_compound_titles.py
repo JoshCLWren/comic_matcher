@@ -10,19 +10,28 @@ from comic_matcher.parser import ComicTitleParser
 def test_compound_title_parsing():
     """Test that compound titles with colons are parsed correctly"""
     parser = ComicTitleParser()
-    
+
     # Test various compound titles
     test_cases = [
         # Title with publisher-like prefix
-        ("Marvel: Shadows and Light", "Marvel: Shadows and Light",),
+        (
+            "Marvel: Shadows and Light",
+            "Marvel: Shadows and Light",
+        ),
         # Another publisher prefix
-        ("DC: New Frontier", "DC: New Frontier",),
+        (
+            "DC: New Frontier",
+            "DC: New Frontier",
+        ),
         # Regular title with subtitle
         ("Batman: The Long Halloween", "Batman: The Long Halloween"),
         # Very short prefix
-        ("X: The Unknown", "X: The Unknown",),
+        (
+            "X: The Unknown",
+            "X: The Unknown",
+        ),
         # Longer prefix that should be split
-        ("Fantastic Four: Heroes Reborn", "Fantastic Four: Heroes Reborn")
+        ("Fantastic Four: Heroes Reborn", "Fantastic Four: Heroes Reborn"),
     ]
 
     for title, expected_main in test_cases:
@@ -33,7 +42,7 @@ def test_compound_title_parsing():
 def test_matcher_with_compound_titles():
     """Test that matcher handles compound titles appropriately"""
     matcher = ComicMatcher()
-    
+
     # Test various title combinations
     test_cases = [
         # These should NOT match
@@ -44,7 +53,7 @@ def test_matcher_with_compound_titles():
         ("Marvel: Shadows and Light", "Marvel: Shadows & Light", True),
         ("Batman: The Long Halloween", "Batman: Long Halloween", True),
     ]
-    
+
     for title1, title2, should_match in test_cases:
         similarity = matcher._compare_titles(title1, title2)
         if should_match:
@@ -56,7 +65,7 @@ def test_matcher_with_compound_titles():
 def test_find_best_match_with_compound_titles():
     """Test find_best_match with various compound title scenarios"""
     matcher = ComicMatcher()
-    
+
     # Test various source comics with compound titles
     test_cases = [
         # Marvel: Shadows and Light vs. various titles
@@ -65,9 +74,9 @@ def test_find_best_match_with_compound_titles():
             "targets": [
                 {"title": "Marvels", "issue": "1"},
                 {"title": "Marvel Tales", "issue": "1"},
-                {"title": "Marvel: Shadows and Light", "issue": "1"}
+                {"title": "Marvel: Shadows and Light", "issue": "1"},
             ],
-            "expected_match": "Marvel: Shadows and Light"
+            "expected_match": "Marvel: Shadows and Light",
         },
         # DC: New Frontier vs. various titles
         {
@@ -75,24 +84,25 @@ def test_find_best_match_with_compound_titles():
             "targets": [
                 {"title": "DC Comics Presents", "issue": "1"},
                 {"title": "DC: New Frontier", "issue": "1"},
-                {"title": "New Frontier", "issue": "1"}
+                {"title": "New Frontier", "issue": "1"},
             ],
-            "expected_match": "DC: New Frontier"
+            "expected_match": "DC: New Frontier",
         },
         # Batman: Year One vs. various titles
         {
             "source": {"title": "Batman: Year One", "issue": "1"},
             "targets": [
-                {"title": "Batman", "issue": "404"}, # Year One starts at #404
+                {"title": "Batman", "issue": "404"},  # Year One starts at #404
                 {"title": "Detective Comics", "issue": "1"},
-                {"title": "Batman: Year One", "issue": "1"}
+                {"title": "Batman: Year One", "issue": "1"},
             ],
-            "expected_match": "Batman: Year One"
-        }
+            "expected_match": "Batman: Year One",
+        },
     ]
-    
+
     for case in test_cases:
         result = matcher.find_best_match(case["source"], case["targets"])
         assert result is not None, f"Failed to find any match for {case['source']['title']}"
-        assert result["matched_comic"]["title"] == case["expected_match"], \
+        assert result["matched_comic"]["title"] == case["expected_match"], (
             f"Expected {case['expected_match']} but got {result['matched_comic']['title']}"
+        )

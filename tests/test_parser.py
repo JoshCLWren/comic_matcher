@@ -67,7 +67,7 @@ class TestComicTitleParser:
 
         # Test with colon
         result = parser.parse("X-Factor (1986) #1: The Beginning")
-        assert result["main_title"] == 'X-Factor  : The Beginning'
+        assert result["main_title"] == "X-Factor  : The Beginning"
         assert result["year"] == "1986"
 
         # Test with parentheses
@@ -120,7 +120,6 @@ class TestComicTitleParser:
     def test_normalize_title(self):
         """Test normalizing titles with common prefixes"""
         parser = ComicTitleParser()
-
 
         # Test common prefix removal
         assert parser._normalize_title("The Avengers") == "Avengers"

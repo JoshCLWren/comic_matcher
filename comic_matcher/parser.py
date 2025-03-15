@@ -4,7 +4,6 @@ Parser module for comic book titles
 
 import re
 
-
 class ComicTitleParser:
     """Parser for extracting structured information from comic book titles"""
 
@@ -22,7 +21,6 @@ class ComicTitleParser:
             "marvel's",
             "dc",
             "dc's",
-            "uncanny",
             "amazing",
             "spectacular",
             "astonishing",
@@ -54,7 +52,6 @@ class ComicTitleParser:
                 - main_title: The core series title
                 - volume: Volume number if present
                 - year: Publication year if present
-                - subtitle: Any subtitle
                 - special: Special identifiers like "Annual"
                 - clean_title: Normalized version of the title
         """
@@ -63,7 +60,6 @@ class ComicTitleParser:
                 "main_title": "",
                 "volume": "",
                 "year": "",
-                "subtitle": "",
                 "special": "",
                 "clean_title": "",
             }
@@ -100,17 +96,15 @@ class ComicTitleParser:
                 ).strip()
                 break
 
-        # Extract subtitle (after colon or in parentheses)
-        main_title, subtitle = self._split_title_and_subtitle(clean_title)
-
         # Normalize main title
-        main_title = self._normalize_title(main_title)
-
+        main_title = self._normalize_title(clean_title)
+        if main_title and main_title[-1] in (":",):
+            main_title = main_title[:-1]
+        # if last index of main_title is punctuation remove it
         return {
             "main_title": main_title,
             "volume": volume,
             "year": year,
-            "subtitle": subtitle,
             "special": special,
             "clean_title": self._clean_title(title),  # Full normalized version
         }
@@ -145,7 +139,8 @@ class ComicTitleParser:
 
         title_lower = title.lower()
 
-        # Remove common prefixes - this will handle 'Uncanny X-Men' -> 'X-Men'
+        # The above statement is wrong. Uncanny X-men is 100% different from X-Men.
+
         # and other expected normalizations consistently
         for prefix in self.common_prefixes:
             if title_lower.startswith(prefix + " "):

@@ -224,6 +224,42 @@ class ComicMatcher:
             if has_and_pattern1 != has_and_pattern2 and (title1.lower() != title2.lower()):
                 return 0.3
 
+        # Case 3: Title with slash vs title with colon or subtitle
+        # Example: "Wolverine/Doop" vs "Wolverine: Evilution"
+        has_slash1 = "/" in title1
+        has_slash2 = "/" in title2
+
+        if (has_slash1 != has_slash2) and (has_colon1 or has_colon2):
+            # If one has a slash and one has a colon, they're different comics
+            # One has a slash, the other doesn't
+            return 0.3  # Low similarity for slash vs colon
+
+        # Check for team-up titles (with &, and, vs, etc.)
+        team_up_patterns = ["&", " and ", " vs ", " versus "]
+
+        # Check if either title contains a team-up pattern while the other doesn't
+        has_team_up1 = any(pattern in title1.lower() for pattern in team_up_patterns)
+        has_team_up2 = any(pattern in title2.lower() for pattern in team_up_patterns)
+
+        if has_team_up1 != has_team_up2:  # One is a team-up, the other isn't
+            # Extract the first character/name before the team-up indicator
+            team_title = title1 if has_team_up1 else title2
+            solo_title = title2 if has_team_up1 else title1
+
+            # Find which pattern matched
+            matched_pattern = next((p for p in team_up_patterns if p in team_title.lower()), None)
+
+            if matched_pattern:
+                first_character = team_title.lower().split(matched_pattern)[0].strip()
+
+                # If the solo title is similar to just the first character name,
+                # they're different comics (e.g., "Gambit & Bishop" vs "Gambit")
+                if (
+                    first_character in solo_title.lower() or solo_title.lower() in first_character
+                ) and len(first_character) >= 4:
+                    # Avoid false positives with short names
+                    return 0.3  # Low similarity
+
         # Clean titles by removing years, volume info, etc.
         clean1 = self.parser.parse(title1)["clean_title"]
         clean2 = self.parser.parse(title2)["clean_title"]

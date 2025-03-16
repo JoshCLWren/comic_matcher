@@ -190,19 +190,19 @@ class ComicMatcher:
             if key2 in self.fuzzy_hash:
                 return self.fuzzy_hash[key2]
 
-        # DIRECT FIX for "Marvel: Shadows and Light" vs "Marvels" issue:
-        # Check for structural differences in titles (one has colon, other doesn't)
+        # Fix for various structural title differences
+        
+        # Case 1: Short title vs title with prefix+colon
+        # Example: "Marvel: Shadows and Light" vs "Marvels"
         has_colon1 = ":" in title1
         has_colon2 = ":" in title2
 
-        # If one title has a colon and the other doesn't, do an additional check
-        if has_colon1 != has_colon2:
+        if has_colon1 != has_colon2:  # One has a colon, the other doesn't
             # Get the part before the colon in the one that has it
             prefix = title1.split(":")[0].strip().lower() if has_colon1 else ""
             other_title = title2.lower() if has_colon1 else title1.lower()
 
             # If other title is similar to just the prefix, they're different comics
-            # This handles the "Marvel: Shadows and Light" vs "Marvels" case
             if (
                 prefix
                 and (prefix in other_title or other_title in prefix)
@@ -210,6 +210,20 @@ class ComicMatcher:
                 and abs(len(prefix) - len(other_title)) <= 2
             ):
                 return 0.3  # Return low similarity
+                
+        # Case 2: "Character1 And Character2" pattern vs other format
+        # Example: "Wolverine And Jubilee" vs "Wolverine: Evilution"
+        and_pattern = re.compile(r'\b([A-Z][a-z]+)\s+[Aa][Nn][Dd]\s+([A-Z][a-z]+)\b')
+        
+        # Only apply this rule if we're not comparing two titles that both have colons
+        # This prevents it from affecting "Marvel: Shadows and Light" vs "Marvel: Shadows & Light"
+        if not (has_colon1 and has_colon2):
+            has_and_pattern1 = bool(and_pattern.search(title1))
+            has_and_pattern2 = bool(and_pattern.search(title2))
+            
+            if has_and_pattern1 != has_and_pattern2:
+                if title1.lower() != title2.lower():
+                    return 0.3
 
         # Clean titles by removing years, volume info, etc.
         clean1 = self.parser.parse(title1)["clean_title"]

@@ -18,6 +18,8 @@ from .parser import ComicTitleParser
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+PUBLISHERS = ("marvel", "dc")
+
 
 class ComicMatcher:
     """
@@ -688,6 +690,54 @@ class ComicMatcher:
 
         # Use the match function with a lower threshold
         matches = self.match(source_df, target_df, threshold=0.3, indexer_method="full")
+
+        if matches.empty:
+            # try removing publisher names
+            publishers_in_title = any(publisher in comic_title.lower() for publisher in PUBLISHERS)
+            publishers_in_candidates = any(publisher in target['title'].lower()
+                                           for target in candidates
+                                           for publisher in PUBLISHERS)
+
+            result = publishers_in_title and publishers_in_candidates
+
+            # Create copies but preserve original information
+            source_df_cleaned = source_df.copy()
+            source_df_cleaned['original_title'] = source_df['title'].copy()  # Store original titles
+
+            target_df_cleaned = target_df.copy()
+            target_df_cleaned['original_title'] = target_df['title'].copy()  # Store original titles
+
+            # Clean the titles in the copies
+            for df_index, df in enumerate((source_df_cleaned, target_df_cleaned)):
+                for index, row in df.iterrows():
+                    title = row['title']
+                    for pub in PUBLISHERS:
+                        title = title.lower().replace(pub, "")
+                    title = title.replace("/", "").strip()
+                    title = "".join(list(set(title.split(" "))))
+
+                    df.at[index, 'title'] = title  # Update with cleaned title
+
+            # Match using cleaned titles
+            special_matches = self.match(source_df_cleaned, target_df_cleaned, threshold=0.3, indexer_method="full")
+
+            if not special_matches.empty:
+                # Create a modified matches DataFrame with original titles
+                matches = special_matches.copy()
+
+                # Ensure source_title and target_title columns reflect the cleaned titles
+                if 'source_title' in matches.columns and 'target_title' in matches.columns:
+                    # Get the indices from matches
+                    for idx, row in matches.iterrows():
+                        source_idx = idx[0] if isinstance(idx, tuple) else None
+                        target_idx = idx[1] if isinstance(idx, tuple) else None
+
+                        if source_idx is not None and target_idx is not None:
+                            # Add columns for original titles
+                            matches.at[idx, 'source_original_title'] = source_df_cleaned.loc[
+                                source_idx, 'original_title']
+                            matches.at[idx, 'target_original_title'] = target_df_cleaned.loc[
+                                target_idx, 'original_title']
 
         # If no matches found, return None
         if matches.empty:

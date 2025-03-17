@@ -26,11 +26,11 @@ def fuzzy_hash_path(tmp_path):
         "amazing spiderman|the amazing spiderman": 1.0,
         "fantastic four|the fantastic four": 0.95,
     }
-    
+
     hash_path = tmp_path / "test_fuzzy_hash.json"
     with open(hash_path, "w") as f:
         json.dump(fuzzy_hash, f)
-    
+
     yield str(hash_path)
 
 
@@ -87,31 +87,24 @@ def bad_match_source_comics():
         # Completely different titles
         {"title": "X-Men '92: House Of Xcii", "issue": "3"},
         {"title": "X-Men: Children Of The Atom", "issue": "6"},
-        
         # Subtitle missing
         {"title": "New X-Men: Academy X", "issue": "2"},
         {"title": "New X-Men: Academy X", "issue": "3"},
-        
         # Annual/special issue
         {"title": "X-Men", "issue": "2000"},
         {"title": "Uncanny X-Men Special", "issue": "1"},
-        
         # Series version
         {"title": "X-Men Forever 2", "issue": "1"},
         {"title": "X-Men Forever 2", "issue": "5"},
-        
         # Crossover/team-up
         {"title": "Wolverine", "issue": "1"},
         {"title": "Wolverine", "issue": "2"},
-        
         # Series variant
         {"title": "X-Men", "issue": "42"},
-        
         # Civil War titles
         {"title": "Civil War: Casualties Of War", "issue": "1"},
         {"title": "Civil War: The Confession", "issue": "1"},
         {"title": "Civil War: Marvels Snapshots", "issue": "1"},
-        
         # Control cases (should match)
         {"title": "Uncanny X-Men", "issue": "142"},
         {"title": "Amazing Spider-Man", "issue": "300"},
@@ -125,30 +118,23 @@ def bad_match_target_comics():
         # Completely different titles
         {"title": "X-Men: Phoenix", "issue": "3"},
         {"title": "X-Men: The End", "issue": "6"},
-        
         # Subtitle missing
         {"title": "New X-Men", "issue": "2"},
         {"title": "New X-Men", "issue": "3"},
-        
         # Annual/special issue
         {"title": "X-Men Annual 2000", "issue": "1"},
         {"title": "Uncanny X-Men Annual", "issue": "1"},
-        
         # Series version
         {"title": "X-Men Forever", "issue": "1"},
         {"title": "X-Men Forever", "issue": "5"},
-        
         # Crossover/team-up
         {"title": "Wolverine/Doop", "issue": "1"},
         {"title": "Wolverine/Doop", "issue": "2"},
-        
         # Series variant
         {"title": "X-Men Unlimited", "issue": "42"},
-        
         # Civil War titles
         {"title": "Civil War: House of M", "issue": "1"},
         {"title": "Civil War: X-Men", "issue": "1"},
-        
         # Control cases (should match)
         {"title": "Uncanny X-Men", "issue": "142"},
         {"title": "Amazing Spider-Man", "issue": "300"},

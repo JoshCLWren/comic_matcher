@@ -167,39 +167,39 @@ class ComicMatcher:
     def _extract_sequel_number(self, title: str) -> str | None:
         """
         Extract sequel number from a title (e.g., "Civil War II" -> "II")
-        
+
         Args:
             title: Comic title to check for sequel number
-            
+
         Returns:
             Sequel number as string (e.g., "2", "II") or None if not a sequel
         """
         if not title or not isinstance(title, str):
             return None
-            
+
         # Clean the title for comparison
         clean_title = title.strip()
-        
+
         # Check for Arabic numeral sequels (e.g., "Civil War 2")
-        arabic_pattern = re.compile(r'(.+?)\s+(\d+)\s*$')
+        arabic_pattern = re.compile(r"(.+?)\s+(\d+)\s*$")
         arabic_match = arabic_pattern.search(clean_title)
-        if arabic_match:
+        if arabic_match and not re.search(r"#\s*\d+\s*$", clean_title):
             # Make sure it's not just an issue number
-            if not re.search(r'#\s*\d+\s*$', clean_title):
-                return arabic_match.group(2)
-        
+
+            return arabic_match.group(2)
+
         # Check for Roman numeral sequels (e.g., "Civil War II")
-        roman_pattern = re.compile(r'(.+?)\s+([IVXivx]{1,5})\s*$')
+        roman_pattern = re.compile(r"(.+?)\s+([IVXivx]{1,5})\s*$")
         roman_match = roman_pattern.search(clean_title)
         if roman_match:
             roman_numeral = roman_match.group(2).upper()
             # Validate it's a proper Roman numeral
-            valid_roman = re.match(r'^(I{1,3}|I?V|VI{0,3}|I?X)$', roman_numeral)
+            valid_roman = re.match(r"^(I{1,3}|I?V|VI{0,3}|I?X)$", roman_numeral)
             if valid_roman:
                 return roman_numeral
-        
+
         return None
-        
+
     def _compare_titles(self, title1: str, title2: str) -> float:
         """
         Compare two comic titles with specialized comic matching logic
@@ -214,24 +214,25 @@ class ComicMatcher:
         # Check for sequel mismatches first
         sequel1 = self._extract_sequel_number(title1)
         sequel2 = self._extract_sequel_number(title2)
-        
+
         # If both have sequel numbers and they differ, they shouldn't match
         if sequel1 and sequel2 and sequel1 != sequel2:
             return 0.0
-            
-        # If one has a sequel and one doesn't, still allow matching but with potentially lower similarity
+
+        # If one has a sequel and one doesn't,
+        # allow matching but with potentially lower similarity
         # This handles cases like "Secret Wars 2" matching with "Secret Wars"
         if (sequel1 and not sequel2) or (not sequel1 and sequel2):
             # Strip sequel number for base comparison
-            base_title1 = re.sub(r'\s+(?:[IVXivx]{1,5}|\d+)\s*$', '', title1).strip()
-            base_title2 = re.sub(r'\s+(?:[IVXivx]{1,5}|\d+)\s*$', '', title2).strip()
-            
+            base_title1 = re.sub(r"\s+(?:[IVXivx]{1,5}|\d+)\s*$", "", title1).strip()
+            base_title2 = re.sub(r"\s+(?:[IVXivx]{1,5}|\d+)\s*$", "", title2).strip()
+
             # If the base titles are similar, continue with normal matching
             # (this will naturally result in a lower similarity score due to the different lengths)
             if jellyfish.jaro_winkler_similarity(base_title1.lower(), base_title2.lower()) > 0.9:
                 # Just continue with normal matching logic
                 pass
-            
+
         # Check fuzzy hash for pre-computed similarity
         if self.fuzzy_hash:
             # Clean both titles for hash lookup
@@ -413,11 +414,11 @@ class ComicMatcher:
         return 0.0
 
     def match(
-            self,
-            source_comics: list[dict[str, Any]] | pd.DataFrame,
-            target_comics: list[dict[str, Any]] | pd.DataFrame,
-            threshold: float = 0.63,
-            indexer_method: str = "block",
+        self,
+        source_comics: list[dict[str, Any]] | pd.DataFrame,
+        target_comics: list[dict[str, Any]] | pd.DataFrame,
+        threshold: float = 0.63,
+        indexer_method: str = "block",
     ) -> pd.DataFrame:
         """
         Match comics from source to target
@@ -499,7 +500,10 @@ class ComicMatcher:
             # Skip if issues don't match exactly
             if source_issue != target_issue:
                 # Special case: Allow match if issue numbers are very close
-                if feature_vectors.loc[idx, "issue_match"] > 0.8 and feature_vectors.loc[idx, "title_sim"] > 0.9:
+                if (
+                    feature_vectors.loc[idx, "issue_match"] > 0.8
+                    and feature_vectors.loc[idx, "title_sim"] > 0.9
+                ):
                     # High title similarity and close issue number - keep it
                     pass
                 else:
@@ -520,10 +524,16 @@ class ComicMatcher:
                     continue
 
             # Skip if one has a special identifier like "Annual" and the other doesn't
-            source_special = df_source.loc[
-                source_idx, "parsed_special"] if "parsed_special" in df_source.columns else ""
-            target_special = df_target.loc[
-                target_idx, "parsed_special"] if "parsed_special" in df_target.columns else ""
+            source_special = (
+                df_source.loc[source_idx, "parsed_special"]
+                if "parsed_special" in df_source.columns
+                else ""
+            )
+            target_special = (
+                df_target.loc[target_idx, "parsed_special"]
+                if "parsed_special" in df_target.columns
+                else ""
+            )
             if (source_special and not target_special) or (not source_special and target_special):
                 continue
 
@@ -545,7 +555,7 @@ class ComicMatcher:
 
         # Calculate weighted similarity
         similarity = (
-                sum(feature_vectors[col] * weights.get(col, 0) for col in available_cols) / total_weight
+            sum(feature_vectors[col] * weights.get(col, 0) for col in available_cols) / total_weight
         )
 
         # Filter by threshold
@@ -614,25 +624,33 @@ class ComicMatcher:
             }
 
         # Special case for sequels
-        # If this is a sequel comic (e.g., "Secret Wars 2"), try to find the same sequel or the original
+        # If this is a sequel comic (e.g., "Secret Wars 2"),
+        # try to find the same sequel or the original
         sequel_number = self._extract_sequel_number(comic_title)
         if sequel_number:
             # Extract the base title (without sequel number)
-            base_title = re.sub(r'\s+(?:[IVXivx]{1,5}|\d+)\s*$', '', comic_title).strip()
-            
+            base_title = re.sub(r"\s+(?:[IVXivx]{1,5}|\d+)\s*$", "", comic_title).strip()
+
             # First, try to find the same sequel
-            same_sequel_candidates = [c for c in candidates if 
-                                     self._extract_sequel_number(c.get("title", "")) == sequel_number]
+            same_sequel_candidates = [
+                c
+                for c in candidates
+                if self._extract_sequel_number(c.get("title", "")) == sequel_number
+            ]
             if same_sequel_candidates:
                 # If we have the same sequel, prioritize it
                 candidates = same_sequel_candidates
             else:
                 # Otherwise, try to find the base title without sequel number
-                base_candidates = [c for c in candidates if 
-                                  jellyfish.jaro_winkler_similarity(
-                                      c.get("title", "").lower(), 
-                                      base_title.lower()
-                                  ) > 0.9 and not self._extract_sequel_number(c.get("title", ""))]
+                base_candidates = [
+                    c
+                    for c in candidates
+                    if jellyfish.jaro_winkler_similarity(
+                        c.get("title", "").lower(), base_title.lower()
+                    )
+                    > 0.9
+                    and not self._extract_sequel_number(c.get("title", ""))
+                ]
                 # If we find base candidates, use them
                 if base_candidates:
                     # Using only the first base title match to ensure no other mismatches
@@ -642,7 +660,9 @@ class ComicMatcher:
                         "similarity": 0.4,  # Lower similarity for base title match
                         "scores": {
                             "title_similarity": 0.4,
-                            "issue_match": 1.0 if comic.get("issue") == base_candidates[0].get("issue") else 0.0,
+                            "issue_match": 1.0
+                            if comic.get("issue") == base_candidates[0].get("issue")
+                            else 0.0,
                             "year_similarity": 0.5,
                         },
                     }
@@ -733,151 +753,3 @@ class ComicMatcher:
         with Path(path).open("w") as f:
             json.dump(self.fuzzy_hash, f)
         logger.info(f"Saved {len(self.fuzzy_hash)} fuzzy hash entries to {path}")
-
-    def update_fuzzy_hash(self, title1: str, title2: str, similarity: float) -> None:
-        """
-        Update the fuzzy hash with a new title pair
-
-        Args:
-            title1: First title
-            title2: Second title
-            similarity: Similarity score (0-1)
-        """
-        hash_key1 = self._clean_title_for_hash(title1)
-        hash_key2 = self._clean_title_for_hash(title2)
-
-        if hash_key1 and hash_key2:
-            key = f"{hash_key1}|{hash_key2}"
-            self.fuzzy_hash[key] = similarity
-            base_title = re.sub(r'\s+(?:[IVXivx]{1,5}|\d+)\s*$', '', comic_title).strip()
-            
-            # First, try to find the same sequel
-            same_sequel_candidates = [c for c in candidates if 
-                                     self._extract_sequel_number(c.get("title", "")) == sequel_number]
-            if same_sequel_candidates:
-                # If we have the same sequel, prioritize it
-                candidates = same_sequel_candidates
-            else:
-                # Otherwise, try to find the base title without sequel number
-                base_candidates = [c for c in candidates if 
-                                  jellyfish.jaro_winkler_similarity(
-                                      c.get("title", "").lower(), 
-                                      base_title.lower()
-                                  ) > 0.9 and not self._extract_sequel_number(c.get("title", ""))]
-                
-                # If we find base candidates, use them
-                if base_candidates:
-                    # Using only the first base title match to ensure no other mismatches
-                    return {
-                        "source_comic": comic,
-                        "matched_comic": base_candidates[0],
-                        "similarity": 0.7,  # Lower similarity for base title match
-                        "scores": {
-                            "title_similarity": 0.7,
-                            "issue_match": 1.0 if comic.get("issue") == base_candidates[0].get("issue") else 0.0,
-                            "year_similarity": 0.5,
-                        },
-                    }
-
-        # For titles with colon, be very cautious about matching with short titles
-        # that might be similar to just the prefix
-        if ":" in comic_title:
-            prefix = comic_title.split(":")[0].strip().lower()
-            for candidate in candidates:
-                candidate_title = candidate.get("title", "").lower()
-                # If candidate is similar to just prefix (like "Marvel" vs "Marvels"),
-                # and is much shorter than full title, don't allow match
-                if (
-                    (prefix in candidate_title or candidate_title in prefix)
-                    and len(candidate_title) < len(comic_title) * 0.6
-                    and len(candidates) == 1
-                ):
-                    return None
-
-        # Convert to DataFrames for matching
-        source_df = pd.DataFrame([comic])
-        target_df = pd.DataFrame(candidates)
-
-        # Use the match function with a lower threshold
-        matches = self.match(source_df, target_df, threshold=0.3, indexer_method="full")
-
-        # If no matches found, return None
-        if matches.empty:
-            return None
-
-        # Get the best match (highest similarity)
-        best_idx = matches["similarity"].idxmax()
-        best_match = matches.loc[best_idx]
-
-        # Only consider it a match if similarity is reasonably high
-        if best_match["similarity"] < 0.5:
-            return None
-
-        # For titles with colons, be cautious about matching with titles that
-        # are similar to just the prefix part
-        if ":" in comic_title:
-            target_idx = best_match.name[1] if isinstance(best_match.name, tuple) else 0
-            if target_idx < len(candidates):
-                matched_title = candidates[target_idx].get("title", "")
-                prefix = comic_title.split(":")[0].strip().lower()
-                matched_lower = matched_title.lower()
-
-                # If the matched title is similar to just the prefix and much shorter,
-                # try to find better alternatives
-                if (prefix in matched_lower or matched_lower in prefix) and len(
-                    matched_lower
-                ) < len(comic_title) * 0.6:
-                    # Look for better alternatives
-                    alternative_candidates = [
-                        c for c in candidates if c.get("title").lower() != matched_lower
-                    ]
-                    if alternative_candidates:
-                        # Rerun matching without the problematic candidate
-                        return self.find_best_match(comic, alternative_candidates)
-                    # If no alternatives, don't match
-                    return None
-
-        # Get the index of the matched candidate
-        target_idx = best_match.name[1] if isinstance(best_match.name, tuple) else 0
-        matched_comic = candidates[target_idx] if target_idx < len(candidates) else candidates[0]
-
-        # Convert scores to expected format
-        scores = {
-            "title_similarity": best_match.get("title_sim", 0.0),
-            "issue_match": best_match.get("issue_match", 0.0),
-            "year_similarity": best_match.get("year_sim", 0.5),  # Default if not present
-        }
-
-        return {
-            "source_comic": comic,
-            "matched_comic": matched_comic,
-            "similarity": float(best_match["similarity"]),
-            "scores": scores,
-        }
-
-    def save_fuzzy_hash(self, path: str = "fuzzy_hash.json") -> None:
-        """
-        Save the current fuzzy hash to file
-
-        Args:
-            path: Path to save the JSON file
-        """
-        with Path(path).open("w") as f:
-            json.dump(self.fuzzy_hash, f)
-        logger.info(f"Saved {len(self.fuzzy_hash)} fuzzy hash entries to {path}")
-
-    def update_fuzzy_hash(self, title1: str, title2: str, similarity: float) -> None:
-        """
-        Update the fuzzy hash with a new title pair
-
-        Args:
-            title1: First title
-            title2: Second title
-            similarity: Similarity score (0-1)
-        """
-        hash_key1 = self._clean_title_for_hash(title1)
-        hash_key2 = self._clean_title_for_hash(title2)
-
-        if hash_key1 and hash_key2:
-            key = f"{hash_key1}|{hash_key2}"
-            self.fuzzy_hash[key] = similarity

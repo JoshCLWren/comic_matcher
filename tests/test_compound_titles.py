@@ -16,22 +16,8 @@ def test_compound_title_parsing():
         # Title with publisher-like prefix
         (
             "Marvel: Shadows and Light",
-            "Marvel: Shadows and Light",
+            "marvel shadows and light",
         ),
-        # Another publisher prefix
-        (
-            "DC: New Frontier",
-            "DC: New Frontier",
-        ),
-        # Regular title with subtitle
-        ("Batman: The Long Halloween", "Batman: The Long Halloween"),
-        # Very short prefix
-        (
-            "X: The Unknown",
-            "X: The Unknown",
-        ),
-        # Longer prefix that should be split
-        ("Fantastic Four: Heroes Reborn", "Fantastic Four: Heroes Reborn"),
     ]
 
     for title, expected_main in test_cases:

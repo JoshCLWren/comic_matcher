@@ -98,16 +98,20 @@ class ComicTitleParser:
                 break
 
         # Normalize main title
+        clean_title = self._clean_title(title)
         main_title = self._normalize_title(clean_title)
         if main_title and main_title[-1] in (":",):
             main_title = main_title[:-1]
-        # if last index of main_title is punctuation remove it
+        if special != "":
+            main_title += f" {special}".lower()
+            clean_title += f" {special}".lower()
+
         return {
             "main_title": main_title,
             "volume": volume,
             "year": year,
             "special": special,
-            "clean_title": self._clean_title(title),  # Full normalized version
+            "clean_title": clean_title,  # Full normalized version
         }
 
     def _split_title_and_subtitle(self, title: str) -> tuple[str, str]:

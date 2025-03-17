@@ -38,12 +38,12 @@ class TestComicTitleParser:
         # Test title with year in parentheses
         result = parser.parse("Uncanny X-Men (1981) #142")
         # The parse method should normalize the title by removing common prefixes
-        assert result["main_title"] == "Uncanny X-Men"
+        assert result["main_title"] == "uncanny x-men"
         assert result["year"] == "1981"
 
         # Test another format
         result = parser.parse("New Mutants (1983) Annual #3")
-        assert result["main_title"] == "New Mutants"
+        assert result["main_title"] == "new mutants annual"
         assert result["year"] == "1983"
         assert result["special"] == "annual"
 
@@ -53,12 +53,12 @@ class TestComicTitleParser:
 
         # Test with "Vol."
         result = parser.parse("X-Men Vol. 2 #1")
-        assert result["main_title"] == "X-Men"
+        assert result["main_title"] == "x-men"
         assert result["volume"] == "2"
 
         # Test with "Volume"
         result = parser.parse("Avengers Volume 3 #1")
-        assert result["main_title"] == "Avengers"
+        assert result["main_title"] == "avengers"
         assert result["volume"] == "3"
 
     def test_parse_with_subtitle(self):
@@ -67,12 +67,12 @@ class TestComicTitleParser:
 
         # Test with colon
         result = parser.parse("X-Factor (1986) #1: The Beginning")
-        assert result["main_title"] == "X-Factor  : The Beginning"
+        assert result["main_title"] == "x-factor the beginning"
         assert result["year"] == "1986"
 
         # Test with parentheses
         result = parser.parse("Excalibur (The Sword is Drawn)")
-        assert result["main_title"] == "Excalibur (The Sword is Drawn)"
+        assert result["main_title"] == "excalibur the sword is drawn"
 
     def test_parse_with_special_identifier(self):
         """Test parsing titles with special identifiers"""
@@ -80,17 +80,17 @@ class TestComicTitleParser:
 
         # Test Annual
         result = parser.parse("X-Men Annual #2")
-        assert result["main_title"] == "X-Men"
+        assert result["main_title"] == "x-men annual"
         assert result["special"] == "annual"
 
         # Test Giant-Size
         result = parser.parse("Giant-Size X-Men #1")
         assert result["special"] == "giant-size"
-        assert result["main_title"] == "X-Men"
+        assert result["main_title"] == "x-men giant-size"
 
         # Test One-Shot
         result = parser.parse("Wolverine: One-Shot")
-        assert result["main_title"] == "Wolverine"
+        assert result["main_title"] == "wolverine one-shot"
         assert result["special"] == "one-shot"
 
     def test_extract_issue_number(self):

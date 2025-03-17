@@ -413,11 +413,11 @@ class ComicMatcher:
         return 0.0
 
     def match(
-        self,
-        source_comics: list[dict[str, Any]] | pd.DataFrame,
-        target_comics: list[dict[str, Any]] | pd.DataFrame,
-        threshold: float = 0.63,
-        indexer_method: str = "block",
+            self,
+            source_comics: list[dict[str, Any]] | pd.DataFrame,
+            target_comics: list[dict[str, Any]] | pd.DataFrame,
+            threshold: float = 0.63,
+            indexer_method: str = "block",
     ) -> pd.DataFrame:
         """
         Match comics from source to target
@@ -472,26 +472,80 @@ class ComicMatcher:
 
         # Add custom comparisons for comic title and issue
         compare.string("title", "title", method="jarowinkler", label="title_sim")
-
         compare.string("issue", "issue", method="jarowinkler", label="issue_match")
 
         # Add year comparison if available
         if "parsed_year" in df_source.columns and "parsed_year" in df_target.columns:
             compare.exact("parsed_year", "parsed_year", label="year_sim")
 
+        # Add special edition type comparison if available
+        if "parsed_special" in df_source.columns and "parsed_special" in df_target.columns:
+            compare.exact("parsed_special", "parsed_special", label="special_sim")
+
         # Compute similarity scores
         feature_vectors = compare.compute(candidate_pairs, df_source, df_target)
 
+        # Filter out problematic pairs before calculating overall similarity
+        filtered_candidate_pairs = []
+        for idx in feature_vectors.index:
+            source_idx, target_idx = idx
+
+            # Get essential information about the comics
+            source_title = df_source.loc[source_idx, "title"]
+            target_title = df_target.loc[target_idx, "title"]
+            source_issue = df_source.loc[source_idx, "issue"]
+            target_issue = df_target.loc[target_idx, "issue"]
+
+            # Skip if issues don't match exactly
+            if source_issue != target_issue:
+                # Special case: Allow match if issue numbers are very close
+                if feature_vectors.loc[idx, "issue_match"] > 0.8 and feature_vectors.loc[idx, "title_sim"] > 0.9:
+                    # High title similarity and close issue number - keep it
+                    pass
+                else:
+                    # Skip this pair - issues don't match
+                    continue
+
+            # Skip if one is a sequel and the other isn't
+            source_sequel = self._extract_sequel_number(source_title)
+            target_sequel = self._extract_sequel_number(target_title)
+            if (source_sequel and not target_sequel) or (not source_sequel and target_sequel):
+                continue
+
+            # Skip if titles have different subtitles after a colon
+            if ":" in source_title and ":" in target_title:
+                source_subtitle = source_title.split(":", 1)[1].strip().lower()
+                target_subtitle = target_title.split(":", 1)[1].strip().lower()
+                if source_subtitle != target_subtitle:
+                    continue
+
+            # Skip if one has a special identifier like "Annual" and the other doesn't
+            source_special = df_source.loc[
+                source_idx, "parsed_special"] if "parsed_special" in df_source.columns else ""
+            target_special = df_target.loc[
+                target_idx, "parsed_special"] if "parsed_special" in df_target.columns else ""
+            if (source_special and not target_special) or (not source_special and target_special):
+                continue
+
+            # If we get here, the pair is valid
+            filtered_candidate_pairs.append(idx)
+
+        # Keep only the valid pairs
+        feature_vectors = feature_vectors.loc[filtered_candidate_pairs]
+
         # Calculate overall similarity (weighted average)
-        weights = {"title_sim": 0.6, "issue_match": 0.35, "year_sim": 0.05}
+        weights = {"title_sim": 0.35, "issue_match": 0.45, "year_sim": 0.1, "special_sim": 0.1}
 
         # Use only available columns
         available_cols = [col for col in weights if col in feature_vectors.columns]
+        if not available_cols:
+            return pd.DataFrame()  # No valid columns to compare
+
         total_weight = sum(weights[col] for col in available_cols)
 
         # Calculate weighted similarity
         similarity = (
-            sum(feature_vectors[col] * weights.get(col, 0) for col in available_cols) / total_weight
+                sum(feature_vectors[col] * weights.get(col, 0) for col in available_cols) / total_weight
         )
 
         # Filter by threshold

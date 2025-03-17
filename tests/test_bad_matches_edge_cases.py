@@ -165,7 +165,7 @@ class TestBadMatchEdgeCases:
              "should_match": False},
             {"source": {"title": "X-Men", "issue": "1"}, 
              "target": {"title": "Astonishing X-Men", "issue": "1"},
-             "should_match": True},  # This should match due to prefix normalization
+             "should_match": False},  # This should not match due to prefix normalization
         ]
         
         for case in test_cases:

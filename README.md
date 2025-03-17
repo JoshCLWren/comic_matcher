@@ -15,14 +15,22 @@ It uses a combination of techniques from the record linkage toolkit with domain-
 - Support for X-Men and other special series cases
 - Configurable blocking and comparison rules
 - Pre-computed fuzzy hash support
+- Robust handling of sequels, team-ups, and special editions
+- Smart filtering to avoid common bad matches
 
 ## Installation
 
 ```bash
-# Install from the local directory
+# Install directly from PyPI
+pip install comic-matcher
+
+# Install from GitHub
+pip install git+https://github.com/JoshCLWren/comic_matcher.git
+
+# Install from the local directory (for development)
 pip install -e .
 
-# Or install required dependencies
+# Or install required dependencies only
 pip install -r requirements.txt
 ```
 
@@ -91,6 +99,40 @@ from comic_matcher import ComicTitleParser
 parser = ComicTitleParser()
 parsed = parser.parse("Uncanny X-Men (1963) #142")
 print(parsed)
+```
+
+### Handling Special Cases
+
+Comic Matcher includes specialized handling for various complex comic title patterns:
+
+#### Sequels
+```python
+# Will match same sequel number but not different sequels
+matcher.find_best_match({"title": "Civil War II", "issue": "1"}, 
+                       [{"title": "Civil War", "issue": "1"}, 
+                        {"title": "Civil War II", "issue": "1"}, 
+                        {"title": "Civil War III", "issue": "1"}])
+```
+
+#### Team-ups
+```python
+# Properly handles team-up formats
+matcher.find_best_match({"title": "Wolverine", "issue": "1"}, 
+                       [{"title": "Wolverine/Doop", "issue": "1"}])  # Won't match
+
+matcher.find_best_match({"title": "Wolverine/Doop", "issue": "1"}, 
+                       [{"title": "Wolverine/Doop", "issue": "1"}])  # Will match
+```
+
+#### Subtitles and Special Editions
+```python
+# Handles subtitle differences
+matcher.find_best_match({"title": "X-Men: Phoenix", "issue": "1"}, 
+                       [{"title": "X-Men: Legacy", "issue": "1"}])  # Won't match
+
+# Distinguishes special editions
+matcher.find_best_match({"title": "X-Men", "issue": "1"}, 
+                       [{"title": "X-Men Annual", "issue": "1"}])  # Won't match
 ```
 
 ## Developer Guide
@@ -176,47 +218,6 @@ python examples/basic_matching.py
 python examples/integration_example.py
 ```
 
-## Working with Your Existing Projects
-
-### Integration with comic_pricer
-
-```python
-from comic_matcher import ComicMatcher
-import pandas as pd
-
-# Load data from your comic_pricer project
-with open('my_reviews.json') as f:
-    reviews = json.load(f)
-
-# Convert to format for matcher
-source_comics = []
-for review_id, review in reviews.items():
-    source_comics.append({
-        "title": review.get("title", ""),
-        "issue": review.get("issue", ""),
-        "year": review.get("year", "")
-    })
-
-# Match against some target data
-matches = matcher.match(source_comics, target_comics)
-```
-
-### Integration with web_pricer
-
-```python
-from comic_matcher import ComicMatcher
-from constants import get_wishes_df
-
-# Get wishlist data
-wishlist_df = get_wishes_df()
-
-# Initialize matcher with fuzzy hash from your project
-matcher = ComicMatcher(fuzzy_hash_path="fuzzy_hash.json")
-
-# Match against reading order
-matches = matcher.match(wishlist_df, reading_order_df)
-```
-
 ## Testing
 
 The project includes a comprehensive test suite using pytest. The tests cover all major components:
@@ -225,6 +226,8 @@ The project includes a comprehensive test suite using pytest. The tests cover al
 - `test_matcher.py`: Tests for the core matcher functionality
 - `test_utils.py`: Tests for utility functions
 - `test_cli.py`: Tests for command-line interface
+- `test_bad_matches*.py`: Specialized tests for known problematic match cases
+- `test_sequel_detection.py`: Tests for sequel detection and handling
 
 To run the tests:
 
@@ -238,19 +241,44 @@ make test-cov
 # Run tests with verbose output
 make test-verbose
 
-# Run a specific test file
-pytest tests/test_parser.py -v
-
-# Run a specific test class
-pytest tests/test_matcher.py::TestComicMatcher -v
-
-# Run a specific test function
-pytest tests/test_matcher.py::TestComicMatcher::test_compare_titles -v
+# Run specific test categories
+pytest tests/test_bad_matches*.py -v
 ```
 
 ### Test Structure
 
 The tests use pytest fixtures defined in `tests/conftest.py` to provide sample data and common setup. This makes the tests more readable and maintainable.
+
+## Key Implementation Details
+
+### Matcher Algorithm
+
+The matching algorithm follows these steps:
+
+1. Parse and normalize titles using the specialized comic title parser
+2. Generate candidate pairs using recordlinkage blocking
+3. Compute similarity scores for titles and issue numbers
+4. Filter candidates based on domain-specific rules:
+   - Different sequel numbers (e.g., "Civil War II" vs "Civil War III")
+   - Team-up vs. solo titles (e.g., "Wolverine/Doop" vs "Wolverine")
+   - Titles with different subtitles (e.g., "X-Men: Phoenix" vs "X-Men: Legacy")
+   - Special edition differences (e.g., "X-Men Annual" vs "X-Men")
+5. Calculate weighted similarity with adjusted weights:
+   - Title: 35%
+   - Issue number: 45%
+   - Year: 10%
+   - Special edition type: 10%
+6. Apply threshold and return matches
+
+### Parser Features
+
+The parser extracts and normalizes:
+- Main title
+- Volume information
+- Publication year
+- Special identifiers (Annual, One-Shot, etc.)
+- Subtitles
+- Issue numbers
 
 ## CI/CD Workflows
 
@@ -265,9 +293,9 @@ This project uses GitHub Actions for continuous integration and delivery:
 
 ### Status Badges
 
-![Python CI](https://github.com/yourusername/comic_matcher/actions/workflows/python-ci.yml/badge.svg)
-![Security Scan](https://github.com/yourusername/comic_matcher/actions/workflows/security-scan.yml/badge.svg)
-![CodeQL](https://github.com/yourusername/comic_matcher/actions/workflows/codeql-analysis.yml/badge.svg)
+![Python CI](https://github.com/JoshCLWren/comic_matcher/actions/workflows/python-ci.yml/badge.svg)
+![Security Scan](https://github.com/JoshCLWren/comic_matcher/actions/workflows/security-scan.yml/badge.svg)
+![CodeQL](https://github.com/JoshCLWren/comic_matcher/actions/workflows/codeql-analysis.yml/badge.svg)
 
 ## Contributing
 

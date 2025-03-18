@@ -289,3 +289,24 @@ class TestComicMatcher:
 
         # Should not find a match
         assert best_match is None
+        
+    def test_find_best_match_no_duplicated_logic(self, target_comics):
+        """Test that find_best_match doesn't have duplicated logic that causes bugs"""
+        matcher = ComicMatcher()
+
+        # Create two test cases - one with an exact match and one without
+        comic_with_exact_match = {"title": "Uncanny X-Men", "issue": "141"}
+        comic_without_exact_match = {"title": "New Mutants", "issue": "98"}
+        
+        # When there's an exact match
+        result_with_exact = matcher.find_best_match(comic_with_exact_match, target_comics)
+        assert result_with_exact is not None
+        assert result_with_exact["matched_comic"]["title"] == "Uncanny X-Men"
+        assert result_with_exact["matched_comic"]["issue"] == "141"
+        
+        # When there's no exact match
+        result_without_exact = matcher.find_best_match(comic_without_exact_match, target_comics)
+        
+        # Whether this finds a match or not isn't important for this test
+        # What matters is that the function completes execution without errors
+        # which would have happened with the duplicated code

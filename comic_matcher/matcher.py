@@ -971,36 +971,6 @@ class ComicMatcher:
 
         # Look for exact matches first - this is always preferable
         exact_matches = [c for c in candidates if c.get("title") == comic_title]
-        if not exact_matches:
-            composite_score = 0.0
-        if exact_matches:
-            matched_comic = exact_matches[0]
-            issue_match = 1.0 if comic.get("issue") == matched_comic.get("issue") else 0.0
-            if not issue_match:
-                composite_score -= 0.6
-            return {
-                "source_comic": comic,
-                "matched_comic": matched_comic,
-                "similarity": composite_score,
-                "scores": {
-                    "title_similarity": 1.0,
-                    "issue_match": issue_match,
-                    "year_similarity": 0.5,
-                },
-            }
-        if not comic or not candidates:
-            return None
-
-        # Check for empty title
-        comic_title = comic.get("title", "")
-        if not comic_title:
-            return None
-
-        matched_comic = None  # Initialize matched_comic to avoid UnboundLocalError
-        composite_score = 1.0
-
-        # Look for exact matches first - this is always preferable
-        exact_matches = [c for c in candidates if c.get("title") == comic_title]
         if exact_matches:
             matched_comic = exact_matches[0]
             issue_match = 1.0 if comic.get("issue") == matched_comic.get("issue") else 0.0

@@ -271,10 +271,10 @@ class TestComicMatcher:
         assert "similarity" in best_match
         assert "scores" in best_match
 
-        # Should match to X-Men #142
+        # Should not match well to X-Men #142
         assert best_match["matched_comic"]["title"] == "Uncanny X-Men"
         assert best_match["matched_comic"]["issue"] == "141"
-        assert best_match["similarity"] == 1.0
+        assert best_match["similarity"] == 0.4
 
     def test_find_best_match_no_match(self, target_comics):
         """Test finding best match when no good match exists"""

@@ -11,6 +11,7 @@ from typing import Any
 import jellyfish
 import pandas as pd
 import recordlinkage
+from rapidfuzz.distance.Levenshtein_py import similarity
 
 from .parser import ComicTitleParser
 
@@ -608,16 +609,18 @@ class ComicMatcher:
         comic_title = comic.get("title", "")
         if not comic_title:
             return None
-
+        composite_score = 1.0
         # Look for exact matches first - this is always preferable
         exact_matches = [c for c in candidates if c.get("title") == comic_title]
         if exact_matches:
             best_candidate = exact_matches[0]
             issue_match = 1.0 if comic.get("issue") == best_candidate.get("issue") else 0.0
+            if not issue_match:
+                composite_score -= .6
             return {
                 "source_comic": comic,
                 "matched_comic": best_candidate,
-                "similarity": 1.0,
+                "similarity": composite_score,
                 "scores": {
                     "title_similarity": 1.0,
                     "issue_match": issue_match,

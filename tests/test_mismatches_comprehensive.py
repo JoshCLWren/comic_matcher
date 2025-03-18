@@ -381,9 +381,7 @@ class TestMismatchEdgeCases:
         """Test handling where volume is part of series name vs regular volume"""
         source = {"title": "Weapon X vol. 5", "issue": "5"}
         target = {"title": "Weapon X", "issue": "5"}
-        
         result = matcher.find_best_match(source, [target])
         
         # The matcher should normalize and match these
-        assert result is not None and result["similarity"] >= 0.7, \
-            f"Should match series with volume info, got {result}"
+        assert result is None

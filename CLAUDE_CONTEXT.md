@@ -118,6 +118,17 @@ The matching algorithm now:
 - Good separation of concerns between components
 - Enhanced handling of special cases like sequels, team-ups, and special editions
 
+## Critical Domain Rules for Matching
+
+1. **Issue Numbers**: Issue numbers are critical identifiers in comic matching
+   - When titles match but issue numbers differ, similarity should be significantly reduced (specifically by 0.6)
+   - Full similarity (1.0) should only be given when both title and issue match
+   - The current implementation uses `composite_score = 1.0` and subtracts 0.6 if issues don't match
+
+2. **Title Matching Priority**: While titles are important, they are not sufficient on their own
+   - Exact title matches with different issues should receive a similarity of 0.4
+   - This reflects the domain reality that many comics share titles but are different issues
+
 ## Recently Improved Areas
 
 1. **Title Comparison Logic**: The title comparison now properly handles:

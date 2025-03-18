@@ -3,6 +3,7 @@ Tests for the parser component with bad match examples
 """
 
 import pytest
+
 from comic_matcher.parser import ComicTitleParser
 
 

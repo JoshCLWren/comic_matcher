@@ -3,6 +3,7 @@ Minimal test case for Marvel: Shadows and Light issue
 """
 
 import pandas as pd
+
 from comic_matcher.matcher import ComicMatcher
 
 

@@ -81,7 +81,10 @@ class TestComicMatcher:
         matcher = ComicMatcher()
 
         # Create data missing title and issue
-        comics = [{"name": "X-Men", "number": "1"}, {"name": "Spider-Man", "number": "300"}]
+        comics = [
+            {"name": "X-Men", "number": "1"},
+            {"name": "Spider-Man", "number": "300"},
+        ]
 
         df = matcher._prepare_dataframe(comics, "test_source")
 
@@ -286,5 +289,3 @@ class TestComicMatcher:
 
         # Should not find a match
         assert best_match is None
-
-

@@ -3,6 +3,7 @@ Tests for specific edge cases identified in the bad matches analysis
 """
 
 import pytest
+
 from comic_matcher.matcher import ComicMatcher
 
 

@@ -78,7 +78,11 @@ class TestCLI:
 
         # Setup matches result
         matches = pd.DataFrame(
-            {"source_title": ["X-Men"], "target_title": ["Uncanny X-Men"], "similarity": [0.9]}
+            {
+                "source_title": ["X-Men"],
+                "target_title": ["Uncanny X-Men"],
+                "similarity": [0.9],
+            }
         )
         mock_matcher_instance.match.return_value = matches
 

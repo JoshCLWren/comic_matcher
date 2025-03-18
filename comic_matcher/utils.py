@@ -165,13 +165,13 @@ def find_duplicates(comics: pd.DataFrame) -> pd.DataFrame:
         duplicates_data = [
             {
                 "comic1_idx": 0,
-                "comic1_title": comics.iloc[0]["title"] if "title" in comics.columns else "X-Men",
-                "comic1_issue": comics.iloc[0]["issue"] if "issue" in comics.columns else "1",
+                "comic1_title": (comics.iloc[0]["title"] if "title" in comics.columns else "X-Men"),
+                "comic1_issue": (comics.iloc[0]["issue"] if "issue" in comics.columns else "1"),
                 "comic2_idx": 1,
-                "comic2_title": comics.iloc[1]["title"]
-                if "title" in comics.columns
-                else "Uncanny X-Men",
-                "comic2_issue": comics.iloc[1]["issue"] if "issue" in comics.columns else "1",
+                "comic2_title": (
+                    comics.iloc[1]["title"] if "title" in comics.columns else "Uncanny X-Men"
+                ),
+                "comic2_issue": (comics.iloc[1]["issue"] if "issue" in comics.columns else "1"),
             },
             {
                 "comic1_idx": 2,

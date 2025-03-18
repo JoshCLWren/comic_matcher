@@ -3,6 +3,7 @@ Test that Wolverine: Evilution is not matched with Wolverine And Jubilee
 """
 
 import pytest
+
 from comic_matcher.matcher import ComicMatcher
 
 

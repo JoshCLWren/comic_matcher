@@ -3,6 +3,7 @@ Test to ensure "Marvel: Shadows and Light 1" doesn't match with "Marvels" #1
 """
 
 import pytest
+
 from comic_matcher.matcher import ComicMatcher
 
 

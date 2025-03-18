@@ -161,7 +161,13 @@ class TestUtils:
         # Create sample comics with duplicates
         comics = pd.DataFrame(
             {
-                "title": ["X-Men", "Uncanny X-Men", "Spider-Man", "Amazing Spider-Man", "Batman"],
+                "title": [
+                    "X-Men",
+                    "Uncanny X-Men",
+                    "Spider-Man",
+                    "Amazing Spider-Man",
+                    "Batman",
+                ],
                 "issue": ["1", "1", "300", "300", "500"],
             }
         )

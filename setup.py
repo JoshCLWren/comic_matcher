@@ -1,8 +1,8 @@
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
 
 setup(
     name="comic_matcher",
-    version="0.2.0",
+    version="0.2.1",
     packages=find_packages(),
     install_requires=[
         "pandas>=1.0.0",
@@ -23,8 +23,8 @@ setup(
         ],
     },
     entry_points={
-        'console_scripts': [
-            'comic-matcher=comic_matcher.cli:main',
+        "console_scripts": [
+            "comic-matcher=comic_matcher.cli:main",
         ],
     },
     description="Entity resolution for comic book title matching",

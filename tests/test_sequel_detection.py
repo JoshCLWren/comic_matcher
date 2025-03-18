@@ -3,7 +3,9 @@ Test suite for sequel detection functionality
 """
 
 import re
+
 import pytest
+
 from comic_matcher.matcher import ComicMatcher
 
 
@@ -64,7 +66,10 @@ def test_find_best_match_with_sequels():
 
     # Test with only different sequels available
     source_comic = {"title": "Secret Wars 2", "issue": "1"}
-    candidates = [{"title": "Secret Wars", "issue": "1"}, {"title": "Secret Wars 3", "issue": "1"}]
+    candidates = [
+        {"title": "Secret Wars", "issue": "1"},
+        {"title": "Secret Wars 3", "issue": "1"},
+    ]
 
     # Should match with "Secret Wars" (non-sequel) rather than "Secret Wars 3" (different sequel)
     match = matcher.find_best_match(source_comic, candidates)

@@ -3,6 +3,7 @@ Basic tests for specific mismatches identified in the data
 """
 
 import pytest
+
 from comic_matcher.matcher import ComicMatcher
 
 

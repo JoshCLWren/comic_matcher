@@ -141,11 +141,12 @@ The matching algorithm now:
 ## Recently Improved Areas
 
 1. **Title Comparison Logic**: The title comparison now properly handles:
-   - Sequel detection (e.g., "Civil War II" vs "Civil War III")
+   - Sequel detection (e.g., "Civil War II" vs "Civil War III") with enhanced recognition of letter-based and keyword-based sequel patterns
    - Team-up formats (e.g., "Wolverine/Doop" vs "Wolverine")
-   - Slash-format titles with multiple components (e.g., "DC Versus Marvel/Marvel Versus DC")
+   - Slash-format titles with multiple components (e.g., "DC Versus Marvel/Marvel Versus DC") by analyzing semantic reversibility of title parts
    - Subtitles after colons with generalized similarity thresholds (e.g., "X-Men: Phoenix" vs "X-Men: Legacy")
    - Special editions (e.g., "X-Men Annual" vs "X-Men")
+   - Structural title differences across major comic franchises (e.g., "X-Men: Gold" vs "Uncanny X-Men")
 
 2. **Match Filtering**: The matcher now filters out problematic matches based on:
    - Issue number mismatches

@@ -2,8 +2,9 @@
 Integration tests for bad matches identified in the reading order sheet
 """
 
-import pytest
 import pandas as pd
+import pytest
+
 from comic_matcher.matcher import ComicMatcher
 
 
@@ -218,7 +219,11 @@ class TestBadMatchesIntegration:
             {"title": "Wolverine/Doop", "issue": "1", "reading_order": "424.211"},
             {"title": "New X-Men", "issue": "2", "reading_order": "449.009"},
             {"title": "New X-Men", "issue": "3", "reading_order": "449.01"},
-            {"title": "Civil War: House of M", "issue": "1", "reading_order": "461.072"},
+            {
+                "title": "Civil War: House of M",
+                "issue": "1",
+                "reading_order": "461.072",
+            },
             {"title": "Civil War: X-Men", "issue": "1", "reading_order": "486.038"},
         ]
 

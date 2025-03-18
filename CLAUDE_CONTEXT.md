@@ -43,6 +43,15 @@ As of March 2025:
 4. Performance considerations through caching and pre-computed fuzzy hashes
 5. Robust handling of edge cases like sequels, special editions, and team-ups
 
+## Important Notes
+
+- **Avoid Special Cases in Production**: Special case mappings should be used only as a last resort. 
+  The system should be designed to handle comic matching using general rules and algorithms rather than
+  relying on hard-coded or configuration-based special cases. When possible, improve the matching 
+  logic instead of adding special case mappings.
+- **Test Design**: Tests should not define classes within them. Use factory functions or fixtures instead.
+- **Parameter Management**: Use pytest's parametrize feature for testing multiple similar cases.
+
 ## Project Dependencies
 
 - pandas: Data handling
@@ -134,7 +143,8 @@ The matching algorithm now:
 1. **Title Comparison Logic**: The title comparison now properly handles:
    - Sequel detection (e.g., "Civil War II" vs "Civil War III")
    - Team-up formats (e.g., "Wolverine/Doop" vs "Wolverine")
-   - Subtitles after colons (e.g., "X-Men: Phoenix" vs "X-Men: Legacy")
+   - Slash-format titles with multiple components (e.g., "DC Versus Marvel/Marvel Versus DC")
+   - Subtitles after colons with generalized similarity thresholds (e.g., "X-Men: Phoenix" vs "X-Men: Legacy")
    - Special editions (e.g., "X-Men Annual" vs "X-Men")
 
 2. **Match Filtering**: The matcher now filters out problematic matches based on:

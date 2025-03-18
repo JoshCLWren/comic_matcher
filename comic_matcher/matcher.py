@@ -191,7 +191,11 @@ class ComicMatcher:
             # Ensure there's a valid base title before the number
             base_title = arabic_match.group(1).strip()
             if len(base_title) >= 3:  # Minimum length for a valid title
-                return arabic_match.group(2)
+                # Only consider it a sequel if the number is small (typically sequels are 2, 3, 4...)
+                # This avoids misinterpreting years or other large numbers
+                sequel_number = int(arabic_match.group(2))
+                if 1 <= sequel_number <= 20:  # Reasonable range for sequels
+                    return arabic_match.group(2)
 
         # Check for Roman numeral sequels (e.g., "Civil War II")
         roman_pattern = re.compile(r"(.+?)\s+([IVXivx]{1,5})\s*$")
@@ -205,6 +209,22 @@ class ComicMatcher:
                 base_title = roman_match.group(1).strip()
                 if len(base_title) >= 3:  # Minimum length for a valid title
                     return roman_numeral
+                    
+        # Check for specific sequel words like "Forever 2" or "Academy X"
+        sequel_keywords = ["forever", "academy", "saga", "legacy"]
+        for keyword in sequel_keywords:
+            if keyword in clean_title.lower():
+                # Look for a number after the keyword
+                keyword_pattern = re.compile(fr"({keyword})[\s-]+(\d+)", re.IGNORECASE)
+                keyword_match = keyword_pattern.search(clean_title)
+                if keyword_match:
+                    return keyword_match.group(2)
+                    
+                # Check for letter sequel designations (e.g., "Academy X")
+                letter_pattern = re.compile(fr"({keyword})[\s-]+([A-Z])", re.IGNORECASE)
+                letter_match = letter_pattern.search(clean_title)
+                if letter_match:
+                    return letter_match.group(2)  # Return the letter as the sequel identifier
 
         return None
 
@@ -372,6 +392,49 @@ class ComicMatcher:
             prefix = title1.split(":")[0].strip().lower() if has_colon1 else ""
             subtitle = title1.split(":")[1].strip().lower() if has_colon1 and len(title1.split(":")) > 1 else ""
             other_title = title2.lower() if has_colon1 else title1.lower()
+            
+            # Handle structural differences for major comic franchises
+            # This pattern applies to main series and their variants (X-Men, Uncanny X-Men, X-Men: Gold, etc.)
+            # Also applies to Avengers, Fantastic Four, and other major franchises with many series variants
+            
+            # Define major comic franchises that commonly have series variants
+            major_franchises = [
+                "x-men", "avengers", "fantastic four", "spider-man", "batman", 
+                "justice league", "superman", "hulk", "iron man", "captain america"
+            ]
+            
+            # Check if this is one of the major franchises with many series variants
+            is_major_franchise = any(
+                franchise in prefix.lower() or franchise in other_title.lower() 
+                for franchise in major_franchises
+            )
+            
+            if is_major_franchise:
+                # Check if one is a main series variant and one has a subtitle
+                main_prefixes = ["uncanny", "all-new", "astonishing", "amazing", "spectacular", 
+                                "ultimate", "mighty", "incredible", "invincible"]
+                
+                # Parse the titles to get the clean versions
+                prefix_clean = self.parser.parse(prefix)["clean_title"].lower()
+                other_clean = self.parser.parse(other_title)["clean_title"].lower()
+                
+                # Identify which franchise we're dealing with
+                matching_franchise = next((franchise for franchise in major_franchises 
+                                         if franchise in prefix.lower() or franchise in other_title.lower()), None)
+                
+                if matching_franchise:
+                    # Check if other_title has a common prefix for this franchise
+                    has_prefix = any(other_title.lower().startswith(p + " " + matching_franchise) for p in main_prefixes)
+                    
+                    # Check if one is a standard variant and one has a subtitle related to the same franchise
+                    # Or if both are core franchise titles with different modifiers
+                    if (has_prefix and matching_franchise in prefix.lower()) or \
+                       (matching_franchise in prefix_clean and matching_franchise in other_clean):
+                        # These are related series but should still match with reasonable similarity
+                        # This handles cases like "X-Men: Gold" vs "Uncanny X-Men"
+                        # and "Avengers: Disassembled" vs "Avengers (1998)"
+                        # and "Fantastic Four: The End" vs "Fantastic Four"
+                        return 0.65  # Good similarity for related franchise titles
             
             # Compare short publisher-like prefixes with similar standalone titles
             # This handles cases like "Marvel: Shadows and Light" vs "Marvels"
@@ -776,6 +839,35 @@ class ComicMatcher:
         if not comic_title:
             return None
             
+        # Initialize matched_comic to avoid UnboundLocalError
+        matched_comic = None
+        composite_score = 1.0
+        
+        # Look for exact matches first - this is always preferable
+        exact_matches = [c for c in candidates if c.get("title") == comic_title]
+        if exact_matches:
+            matched_comic = exact_matches[0]
+            issue_match = 1.0 if comic.get("issue") == matched_comic.get("issue") else 0.0
+            if not issue_match:
+                composite_score -= .6
+            return {
+                "source_comic": comic,
+                "matched_comic": matched_comic,
+                "similarity": composite_score,
+                "scores": {
+                    "title_similarity": 1.0,
+                    "issue_match": issue_match,
+                    "year_similarity": 0.5,
+                },
+            }
+        if not comic or not candidates:
+            return None
+
+        # Check for empty title
+        comic_title = comic.get("title", "")
+        if not comic_title:
+            return None
+            
         matched_comic = None  # Initialize matched_comic to avoid UnboundLocalError
         composite_score = 1.0
         
@@ -924,8 +1016,22 @@ class ComicMatcher:
             return None
             
         # Get the matched comic object first to ensure it's defined
-        target_idx = best_match.name[1] if isinstance(best_match.name, tuple) else 0
-        matched_comic = candidates[target_idx] if target_idx < len(candidates) else candidates[0]
+        # Handle different index types safely to avoid UnboundLocalError with matched_comic
+        if isinstance(best_match.name, tuple) and len(best_match.name) > 1:
+            target_idx = best_match.name[1]
+        else:
+            target_idx = 0
+            
+        # Ensure the index is valid to avoid IndexError
+        if target_idx < len(candidates):
+            matched_comic = candidates[target_idx]
+        else:
+            # Fallback to first candidate if index is out of range
+            matched_comic = candidates[0] if candidates else None
+            
+        # If we couldn't find a valid matched_comic, return None
+        if matched_comic is None:
+            return None
         
         # Apply consistent rules similar to those in the match method
         source_title = comic.get("title", "").lower()

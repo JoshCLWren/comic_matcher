@@ -3,6 +3,7 @@ Test the simplified approach without subtitle parsing
 """
 
 import pytest
+
 from comic_matcher.matcher import ComicMatcher
 from comic_matcher.parser import ComicTitleParser
 

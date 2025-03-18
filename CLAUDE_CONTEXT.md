@@ -43,6 +43,15 @@ As of March 2025:
 4. Performance considerations through caching and pre-computed fuzzy hashes
 5. Robust handling of edge cases like sequels, special editions, and team-ups
 
+## Important Notes
+
+- **Avoid Special Cases in Production**: Special case mappings should be used only as a last resort. 
+  The system should be designed to handle comic matching using general rules and algorithms rather than
+  relying on hard-coded or configuration-based special cases. When possible, improve the matching 
+  logic instead of adding special case mappings.
+- **Test Design**: Tests should not define classes within them. Use factory functions or fixtures instead.
+- **Parameter Management**: Use pytest's parametrize feature for testing multiple similar cases.
+
 ## Project Dependencies
 
 - pandas: Data handling
@@ -118,13 +127,26 @@ The matching algorithm now:
 - Good separation of concerns between components
 - Enhanced handling of special cases like sequels, team-ups, and special editions
 
+## Critical Domain Rules for Matching
+
+1. **Issue Numbers**: Issue numbers are critical identifiers in comic matching
+   - When titles match but issue numbers differ, similarity should be significantly reduced (specifically by 0.6)
+   - Full similarity (1.0) should only be given when both title and issue match
+   - The current implementation uses `composite_score = 1.0` and subtracts 0.6 if issues don't match
+
+2. **Title Matching Priority**: While titles are important, they are not sufficient on their own
+   - Exact title matches with different issues should receive a similarity of 0.4
+   - This reflects the domain reality that many comics share titles but are different issues
+
 ## Recently Improved Areas
 
 1. **Title Comparison Logic**: The title comparison now properly handles:
-   - Sequel detection (e.g., "Civil War II" vs "Civil War III")
+   - Sequel detection (e.g., "Civil War II" vs "Civil War III") with enhanced recognition of letter-based and keyword-based sequel patterns
    - Team-up formats (e.g., "Wolverine/Doop" vs "Wolverine")
-   - Subtitles after colons (e.g., "X-Men: Phoenix" vs "X-Men: Legacy")
+   - Slash-format titles with multiple components (e.g., "DC Versus Marvel/Marvel Versus DC") by analyzing semantic reversibility of title parts
+   - Subtitles after colons with generalized similarity thresholds (e.g., "X-Men: Phoenix" vs "X-Men: Legacy")
    - Special editions (e.g., "X-Men Annual" vs "X-Men")
+   - Structural title differences across major comic franchises (e.g., "X-Men: Gold" vs "Uncanny X-Men")
 
 2. **Match Filtering**: The matcher now filters out problematic matches based on:
    - Issue number mismatches

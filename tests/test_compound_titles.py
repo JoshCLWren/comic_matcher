@@ -3,6 +3,7 @@ Test handling of compound titles with colons and different formats
 """
 
 import pytest
+
 from comic_matcher.matcher import ComicMatcher
 from comic_matcher.parser import ComicTitleParser
 

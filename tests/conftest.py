@@ -49,8 +49,16 @@ def target_comics():
         {"title": "Wolverine (Limited Series)", "issue": "1", "publisher": "Marvel"},
         {"title": "The New Mutants (1983)", "issue": "87", "publisher": "Marvel"},
         {"title": "X-Factor (1986)", "issue": "1", "publisher": "Marvel"},
-        {"title": "Uncanny X-Men", "issue": "141", "publisher": "Marvel"},  # Close but not a match
-        {"title": "New Mutants", "issue": "98", "publisher": "Marvel"},  # First Deadpool
+        {
+            "title": "Uncanny X-Men",
+            "issue": "141",
+            "publisher": "Marvel",
+        },  # Close but not a match
+        {
+            "title": "New Mutants",
+            "issue": "98",
+            "publisher": "Marvel",
+        },  # First Deadpool
         {"title": "Cable & Deadpool", "issue": "1", "publisher": "Marvel"},
     ]
 

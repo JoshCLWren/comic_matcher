@@ -3,6 +3,7 @@ Direct test for the Marvel: Shadows and Light vs Marvels issue with verbose logg
 """
 
 import pytest
+
 from comic_matcher.matcher import ComicMatcher
 
 

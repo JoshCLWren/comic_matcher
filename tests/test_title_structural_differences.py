@@ -3,6 +3,7 @@ Test that the matcher correctly handles structural differences in titles
 """
 
 import pytest
+
 from comic_matcher.matcher import ComicMatcher
 
 
@@ -27,9 +28,21 @@ def test_structural_title_differences():
     # Test cases that should still match despite structural differences
     should_match = [
         # These have different structures but are legitimately the same series
-        ("X-Men: Gold", "Uncanny X-Men", 0.6),  # Different structure but same core series
-        ("Avengers: Disassembled", "Avengers (1998)", 0.6),  # Different structure but same series
-        ("Fantastic Four: The End", "Fantastic Four", 0.6),  # Main series and limited series
+        (
+            "X-Men: Gold",
+            "Uncanny X-Men",
+            0.6,
+        ),  # Different structure but same core series
+        (
+            "Avengers: Disassembled",
+            "Avengers (1998)",
+            0.6,
+        ),  # Different structure but same series
+        (
+            "Fantastic Four: The End",
+            "Fantastic Four",
+            0.6,
+        ),  # Main series and limited series
     ]
 
     for title1, title2, min_sim in should_match:
